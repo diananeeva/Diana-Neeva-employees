@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+     
+   <head>
+          
+      <title>Read Text File</title>
+   </head>
+     
+   <body>
+          <input type="file" name="inputfile" id="inputfile">
+          <br>
+          
+      <pre id="output"></pre>
+            
+          <script type="text/javascript">
+         function compareID(id1,id2) {
+         let [tempDateF1, tempDateT1] = id1;  
+         let [tempDateF2, tempDateT2] = id2;  
+         let result = null;
+         let leftLimit = Math.max(tempDateF1,tempDateF2);
+         let rightLimit = Math.min(tempDateT1,tempDateT2);
+         if(leftLimit<=rightLimit){
+           return Math.floor((rightLimit-leftLimit)/1000/60/60/24)
+         }
+         else{
+           return null;
+         }
+         
+         }
+         
+         	let myObj = {};
+                 document.getElementById('inputfile').addEventListener('change', function() {
+                     var fr=new FileReader();
+                     fr.onload=function(){
+         		myArr = fr.result.split('\r\n');
+         		for(i=0;i<myArr.length;i++){
+         		  let [empID, projID, dateF, dateT] = myArr[i].split(', ');
+         		  if (dateF == 'NULL'){ dateF = new Date(); }
+         		  if (dateT == 'NULL'){ dateT = new Date(); }
+         		  if(!myObj.hasOwnProperty(projID)){
+         		  	myObj[projID]={ids:[],dates:[],pairs:[]}
+         		  }
+         		  myObj[projID].ids.push(empID);
+         		  myObj[projID].dates.push([Date.parse(dateF),Date.parse(dateT)]);
+         		}
+         		for (const property in myObj) {
+         		  let temp = myObj[property].ids
+         		  for(i=0;i<temp.length;i++){
+         		    for(y=i+1;y<temp.length;y++){
+         			let res = compareID(myObj[property].dates[i],myObj[property].dates[y]);
+         			if (res != null){
+         			  myObj[property].pairs.push(`${temp[i]}, ${temp[y]}, ${property}, ${res}`);
+         			}
+         		    }
+         		  }
+         		}
+         
+         		let finalPairs = [];
+         		for (const property in myObj){
+         		  let temp = myObj[property].pairs
+         		  for(i=0;i<temp.length;i++){
+         		    finalPairs.push(temp[i]);
+         		  }
+         		}
+         		document.getElementById('output').textContent=finalPairs.join('\r\n');
+                     }
+                     fr.readAsText(this.files[0]);
+                 });
+             
+      </script>
+   </body>
+     
+</html>
